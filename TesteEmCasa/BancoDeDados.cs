@@ -63,7 +63,7 @@ namespace TesteEmCasa
             con.Close();
         }
 
-        public static Livro PegarLivro(long codigo)
+        public static Livro PegarLivro(string codigo)
         {
             Livro livro = new();
             sql = "SELECT * FROM livros WHERE codigo = @codigo";
@@ -85,6 +85,19 @@ namespace TesteEmCasa
             }
             con.Close();
             return livro;
+        }
+
+        public static bool ExisteLivro(string codigo)
+        {
+            sql = "SELECT * FROM livros WHERE codigo = @codigo";
+            con.Open();
+            cmd = new(sql, con);
+            cmd.Parameters.AddWithValue("codigo", codigo);
+            cmd.Prepare();
+            NpgsqlDataReader rdr = cmd.ExecuteReader();
+            bool result = rdr.Read();
+            con.Close();
+            return result;
         }
 
         public static List<Livro> PegarLivros()
@@ -120,7 +133,6 @@ namespace TesteEmCasa
             cmd = new(sql, con);
             cmd.Prepare();
             cmd.ExecuteNonQuery();
-
             con.Close();
         }
 

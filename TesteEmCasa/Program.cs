@@ -8,15 +8,18 @@ namespace TesteEmCasa
 {
     public class Program
     {
-        public static readonly List<Livro> livros = new();
 
+        static List<Livro> getLivros()
+        {
+            return BancoDeDados.PegarLivros();
+        }
 
         static void Main(string[] args)
         {
             WriteLine("Iniciando...");
             bool continua = true;
             List<Option> options = new();
-            
+
             options.Add(new Option("Cadastrar", CadastrarLivro));
             options.Add(new Option("Consultar", ConsultarLivro));
             options.Add(new Option("Alterar", () => continua = false));
@@ -26,7 +29,6 @@ namespace TesteEmCasa
             DotEnv.Carregar();
             BancoDeDados.NovaConexao();
             BancoDeDados.CriarTabela();
-            livros.AddRange(BancoDeDados.PegarLivros());
 
             do
             {
@@ -41,7 +43,6 @@ namespace TesteEmCasa
             } while (continua);
 
             Clear();
-            livros.ForEach(l => BancoDeDados.AtualizarLivro(l));
             WriteLine("Volte sempre à gerência da livraria SaLer");
             ReadKey();
         }
@@ -49,7 +50,7 @@ namespace TesteEmCasa
         public static void ConsultarLivro()
         {
             Livro livro = new();
-            Menu menu = new($"======== CONSULTA DE LIVROS ({livros.Count}) =========");
+            Menu menu = new($"======== CONSULTA DE LIVROS ({getLivros().Count}) =========");
 
             var codInput = new Input<string>("Código:", (entrada) => livro.Codigo = entrada, (en) => en);
             var nomInput = new Input<string>("Nome:");
@@ -70,10 +71,10 @@ namespace TesteEmCasa
             menu.Inputs.Add(qntInput);
             menu.Show(() =>
             {
-                if (livros.Exists(l => l.Codigo == livro.Codigo))
+                if (BancoDeDados.ExisteLivro(livro.Codigo))
                 {
-                    livro = livros.Find(l => l.Codigo == livro.Codigo);
-                    menu.Title = $"======== CONSULTA DE LIVROS ({livros.IndexOf(livro) + 1}/{livros.Count}) =========";
+                    livro = BancoDeDados.PegarLivro(livro.Codigo);
+                    menu.Title = $"======== CONSULTA DE LIVROS =========";
                     nomInput.Value = livro.Nome;
                     editInput.Value = livro.Editora;
                     autInput.Value = livro.Autor;
@@ -91,7 +92,7 @@ namespace TesteEmCasa
         public static void ExcluirLivro()
         {
             Livro livro = new();
-            Menu menu = new($"======== EXCLUIR LIVROS ({livros.Count}) =========");
+            Menu menu = new($"======== EXCLUIR LIVROS ({getLivros().Count}) =========");
 
             var codInput = new Input<string>("Código:", (entrada) => livro.Codigo = entrada, (en) => en);
             var nomInput = new Input<string>("Nome:");
@@ -112,9 +113,9 @@ namespace TesteEmCasa
             menu.Inputs.Add(qntInput);
             menu.Show(() =>
             {
-                if (livros.Exists(l => l.Codigo == livro.Codigo))
+                if (BancoDeDados.ExisteLivro(livro.Codigo))
                 {
-                    livro = livros.Find(l => l.Codigo == livro.Codigo);
+                    livro = BancoDeDados.PegarLivro(livro.Codigo);
                     menu.Title = $"======== LIVRO EXCLUÍDO =========";
                     nomInput.Value = livro.Nome;
                     editInput.Value = livro.Editora;
@@ -136,7 +137,7 @@ namespace TesteEmCasa
         public static void CadastrarLivro()
         {
             Livro livro = new();
-            Menu menu = new($"======== CADASTRO DE LIVROS ({livros.Count}) =========");
+            Menu menu = new($"======== CADASTRO DE LIVROS ({getLivros().Count}) =========");
 
             var codInput = new Input<string>("Código:", (entrada) => livro.Codigo = entrada, (en) => en);
             var nomInput = new Input<string>("Nome:", (entrada) => livro.Nome = entrada, (en) => en, false);
@@ -159,9 +160,9 @@ namespace TesteEmCasa
 
             menu.Show(() =>
             {
-                if (livros.Exists(l => l.Codigo == livro.Codigo))
+                if (BancoDeDados.ExisteLivro(livro.Codigo))
                 {
-                    livro = livros.Find(l => l.Codigo == livro.Codigo);
+                    livro = BancoDeDados.PegarLivro(livro.Codigo);
                     nomInput.Value = livro.Nome;
                     editInput.Value = livro.Editora;
                     autInput.Value = livro.Autor;
@@ -175,17 +176,14 @@ namespace TesteEmCasa
                     menu.Show(() =>
                     {
                         qntInput.Value = livro.Quantidade;
+                        BancoDeDados.AtualizarLivro(livro);
                         menu.Show(true);
                     });
                 }
                 else
                 {
                     menu.Inputs.FindAll(inp => inp != codInput).ForEach(inp => inp.Read = true);
-                    menu.Show(() =>
-                    {
-                        livros.Add(livro);
-                        BancoDeDados.InserirLivro(livro);
-                    });
+                    menu.Show(() => BancoDeDados.InserirLivro(livro));
 
                 }
 
