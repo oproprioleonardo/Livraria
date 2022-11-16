@@ -1,25 +1,26 @@
-﻿using Npgsql;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace TesteEmCasa
 {
     public class BancoDeDados
     {
         private static string credenciais;
-        private static NpgsqlConnection con;
+        private static SqlConnection con;
         private static string sql;
-        private static NpgsqlCommand cmd;
+        private static SqlCommand cmd;
 
         public static void NovaConexao()
-        {   
+        {
             credenciais = Environment.GetEnvironmentVariable("credenciais");
-            con = new NpgsqlConnection(credenciais);
+            con = new SqlConnection(credenciais);
         }
 
         public static void CriarTabela()
         {
-            sql = "CREATE TABLE IF NOT EXISTS livros(" +
+            sql = "CREATE TABLE livros(" +
                 "codigo VARCHAR(13) PRIMARY KEY, " +
                 "nome VARCHAR(50), " +
                 "editora VARCHAR(30), " +
@@ -27,12 +28,20 @@ namespace TesteEmCasa
                 "ano INT, " +
                 "genero VARCHAR(25), " +
                 "quantidade INT, " +
-                "preco real" +
+                "preco MONEY" +
                 ")";
             con.Open();
             cmd = new(sql, con);
-            cmd.ExecuteNonQuery();
-            con.Close();
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch { }
+            finally
+            {
+                con.Close();
+            }
+
         }
 
         public static void InserirLivro(Livro livro)
@@ -48,15 +57,14 @@ namespace TesteEmCasa
                 "@preco)";
             con.Open();
             cmd = new(sql, con);
-            cmd.Parameters.AddWithValue("nome", livro.Nome);
-            cmd.Parameters.AddWithValue("codigo", livro.Codigo);
-            cmd.Parameters.AddWithValue("editora", livro.Editora);
-            cmd.Parameters.AddWithValue("autor", livro.Autor);
-            cmd.Parameters.AddWithValue("ano", livro.Ano);
-            cmd.Parameters.AddWithValue("genero", livro.Genero);
-            cmd.Parameters.AddWithValue("quantidade", livro.Quantidade);
-            cmd.Parameters.AddWithValue("preco", livro.Preco);
-            
+            cmd.Parameters.Add(new SqlParameter("@codigo", SqlDbType.VarChar, 13)).Value = livro.Codigo;
+            cmd.Parameters.Add(new SqlParameter("@nome", SqlDbType.VarChar, 50)).Value = livro.Nome;
+            cmd.Parameters.Add(new SqlParameter("@editora", SqlDbType.VarChar, 30)).Value = livro.Editora;
+            cmd.Parameters.Add(new SqlParameter("@autor", SqlDbType.VarChar, 50)).Value = livro.Autor;
+            cmd.Parameters.Add(new SqlParameter("@ano", SqlDbType.Int)).Value = livro.Ano;
+            cmd.Parameters.Add(new SqlParameter("@genero", SqlDbType.VarChar, 25)).Value = livro.Genero;
+            cmd.Parameters.Add(new SqlParameter("@quantidade", SqlDbType.Int)).Value = livro.Quantidade;
+            cmd.Parameters.Add(new SqlParameter("@preco", SqlDbType.Money)).Value = livro.Preco;
             cmd.Prepare();
             cmd.ExecuteNonQuery();
 
@@ -69,9 +77,9 @@ namespace TesteEmCasa
             sql = "SELECT * FROM livros WHERE codigo = @codigo";
             con.Open();
             cmd = new(sql, con);
-            cmd.Parameters.AddWithValue("codigo", codigo);
+            cmd.Parameters.Add(new SqlParameter("@codigo", SqlDbType.VarChar, 13)).Value = codigo;
             cmd.Prepare();
-            NpgsqlDataReader rdr = cmd.ExecuteReader();
+            SqlDataReader rdr = cmd.ExecuteReader();
             if (rdr.Read())
             {
                 livro.Codigo = rdr.GetString(0);
@@ -81,7 +89,7 @@ namespace TesteEmCasa
                 livro.Ano = rdr.GetInt32(4);
                 livro.Genero = rdr.GetString(5);
                 livro.Quantidade = rdr.GetInt32(6);
-                livro.Preco = rdr.GetDouble(7);
+                livro.Preco = ((decimal)rdr.GetSqlMoney(7));
             }
             con.Close();
             return livro;
@@ -92,9 +100,9 @@ namespace TesteEmCasa
             sql = "SELECT * FROM livros WHERE codigo = @codigo";
             con.Open();
             cmd = new(sql, con);
-            cmd.Parameters.AddWithValue("codigo", codigo);
+            cmd.Parameters.Add(new SqlParameter("@codigo", SqlDbType.VarChar, 13)).Value = codigo;
             cmd.Prepare();
-            NpgsqlDataReader rdr = cmd.ExecuteReader();
+            SqlDataReader rdr = cmd.ExecuteReader();
             bool result = rdr.Read();
             con.Close();
             return result;
@@ -106,7 +114,7 @@ namespace TesteEmCasa
             sql = "SELECT * FROM livros";
             con.Open();
             cmd = new(sql, con);
-            NpgsqlDataReader rdr = cmd.ExecuteReader();
+            SqlDataReader rdr = cmd.ExecuteReader();
             while (rdr.Read())
             {
                 Livro livro = new();
@@ -117,7 +125,7 @@ namespace TesteEmCasa
                 livro.Ano = rdr.GetInt32(4);
                 livro.Genero = rdr.GetString(5);
                 livro.Quantidade = rdr.GetInt32(6);
-                livro.Preco = rdr.GetDouble(7);
+                livro.Preco = ((decimal)rdr.GetSqlMoney(7));
 
                 livros.Add(livro);
             }
@@ -141,7 +149,7 @@ namespace TesteEmCasa
             sql = "DELETE FROM livros WHERE codigo = @codigo";
             con.Open();
             cmd = new(sql, con);
-            cmd.Parameters.AddWithValue("codigo", codigo);
+            cmd.Parameters.Add(new SqlParameter("@codigo", SqlDbType.VarChar, 13)).Value = codigo;
             cmd.Prepare();
             cmd.ExecuteNonQuery();
 
@@ -155,14 +163,14 @@ namespace TesteEmCasa
                 "WHERE codigo = @codigo";
             con.Open();
             cmd = new(sql, con);
-            cmd.Parameters.AddWithValue("nome", livro.Nome);
-            cmd.Parameters.AddWithValue("codigo", livro.Codigo);
-            cmd.Parameters.AddWithValue("editora", livro.Editora);
-            cmd.Parameters.AddWithValue("autor", livro.Autor);
-            cmd.Parameters.AddWithValue("ano", livro.Ano);
-            cmd.Parameters.AddWithValue("genero", livro.Genero);
-            cmd.Parameters.AddWithValue("quantidade", livro.Quantidade);
-            cmd.Parameters.AddWithValue("preco", livro.Preco);
+            cmd.Parameters.Add(new SqlParameter("@codigo", SqlDbType.VarChar, 13)).Value = livro.Codigo;
+            cmd.Parameters.Add(new SqlParameter("@nome", SqlDbType.VarChar, 50)).Value = livro.Nome;
+            cmd.Parameters.Add(new SqlParameter("@editora", SqlDbType.VarChar, 30)).Value = livro.Editora;
+            cmd.Parameters.Add(new SqlParameter("@autor", SqlDbType.VarChar, 50)).Value = livro.Autor;
+            cmd.Parameters.Add(new SqlParameter("@ano", SqlDbType.Int)).Value = livro.Ano;
+            cmd.Parameters.Add(new SqlParameter("@genero", SqlDbType.VarChar, 25)).Value = livro.Genero;
+            cmd.Parameters.Add(new SqlParameter("@quantidade", SqlDbType.Int)).Value = livro.Quantidade;
+            cmd.Parameters.Add(new SqlParameter("@preco", SqlDbType.Money)).Value = livro.Preco;
 
             cmd.Prepare();
             cmd.ExecuteNonQuery();

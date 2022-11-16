@@ -9,11 +9,11 @@
         public int Ano { get; set; }
         public string Genero { get; set; }
         public int Quantidade { get; set; }
-        public double Preco { get; set; }
+        public decimal Preco { get; set; }
 
         public string Codigo { get; set; }
 
-        public Livro(string nome, string autor, string editora, int ano, string genero, int quantidade, double preco, string codigo)
+        public Livro(string nome, string autor, string editora, int ano, string genero, int quantidade, decimal preco, string codigo)
         {
             Nome = nome;
             Autor = autor;

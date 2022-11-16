@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using static System.Console;
 
@@ -60,7 +58,7 @@ namespace TesteEmCasa
             var autInput = new Input<string>("Autor:");
             var anoInput = new Input<int>("Ano:");
             var genInput = new Input<string>("Genêro:");
-            var precInput = new Input<double>("Preço:");
+            var precInput = new Input<decimal>("Preço:");
             var qntInput = new Input<int>("Quantidade:");
 
             menu.Inputs.Add(codInput);
@@ -108,7 +106,7 @@ namespace TesteEmCasa
             var autInput = new Input<string>("Autor:");
             var anoInput = new Input<int>("Ano:");
             var genInput = new Input<string>("Genêro:");
-            var precInput = new Input<double>("Preço:");
+            var precInput = new Input<decimal>("Preço:");
             var qntInput = new Input<int>("Quantidade:");
 
             menu.Inputs.Add(codInput);
@@ -159,7 +157,7 @@ namespace TesteEmCasa
             var autInput = new Input<string>("Autor:", (entrada) => livro.Autor = entrada, (en) => en, false);
             var anoInput = new Input<int>("Ano:", (entrada) => livro.Ano = entrada, (en) => int.Parse(en), false);
             var genInput = new Input<string>("Genêro:", (entrada) => livro.Genero = entrada, (en) => en, false);
-            var precInput = new Input<double>("Preço:", (entrada) => livro.Preco = entrada, (en) => double.Parse(en), false);
+            var precInput = new Input<decimal>("Preço:", (entrada) => livro.Preco = entrada, (en) => decimal.Parse(en), false);
             var qntInput = new Input<int>("Quantidade:", (entrada) => livro.Quantidade = entrada, (en) => int.Parse(en), false);
 
             menu.Inputs.Add(codInput);
@@ -216,7 +214,7 @@ namespace TesteEmCasa
             var autInput = new Input<string>("Autor:", (entrada) => livro.Autor = entrada != "" ? entrada : livro.Autor, (en) => en, false);
             var anoInput = new Input<int>("Ano:", (entrada) => livro.Ano = entrada, (en) => int.Parse(en), false);
             var genInput = new Input<string>("Genêro:", (entrada) => livro.Genero = entrada != "" ? entrada : livro.Genero, (en) => en, false);
-            var precInput = new Input<double>("Preço:", (entrada) => livro.Preco = entrada, (en) => double.Parse(en), false);
+            var precInput = new Input<decimal>("Preço:", (entrada) => livro.Preco = entrada, (en) => decimal.Parse(en), false);
             var qntInput = new Input<int>("Quantidade:", (entrada) => livro.Quantidade = entrada, (en) => int.Parse(en), false);
 
             menu.Inputs.Add(codInput);

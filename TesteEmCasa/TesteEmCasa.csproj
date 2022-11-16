@@ -8,7 +8,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NETCore.App" Version="2.2.8" />
 		<PackageReference Include="Microsoft.NETCore.Platforms" Version="6.0.6" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
 		<Content Include=".env" Condition="Exists('.env')">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TesteEmCasa
 {
@@ -27,7 +23,7 @@ namespace TesteEmCasa
         {
             get
             {
-                if (Value is double) return double.Parse(Value.ToString()).ToString("C", CultureInfo.CurrentCulture);
+                if (Value is decimal) return decimal.Parse(Value.ToString()).ToString("C", CultureInfo.CurrentCulture);
                 else if (Value != null)
                     return Value.ToString();
                 else return "";
