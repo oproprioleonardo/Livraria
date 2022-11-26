@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using static System.Console;
+
 
 namespace TesteEmCasa
 {
@@ -14,10 +14,9 @@ namespace TesteEmCasa
 
         static void Main(string[] args)
         {
-            WriteLine("Iniciando...");
-            WriteLine("Tentando conectar com o banco de dados...");
+            Console.WriteLine("Iniciando...");
+            Console.WriteLine("Tentando conectar com o banco de dados...");
 
-            DotEnv.Carregar();
             BancoDeDados.NovaConexao();
             BancoDeDados.CriarTabela();
 
@@ -32,7 +31,7 @@ namespace TesteEmCasa
 
             do
             {
-                Clear();
+                Console.Clear();
                 Menu menu = new();
                 menu.Title = "============ Livraria SaLer ============";
                 menu.Description = "Você deseja fazer qual operação com os livros?";
@@ -42,9 +41,9 @@ namespace TesteEmCasa
 
             } while (continua);
 
-            Clear();
-            WriteLine("Volte sempre à gerência da livraria SaLer");
-            ReadKey();
+            Console.Clear();
+            Console.WriteLine("Volte sempre à gerência da livraria SaLer");
+            Console.ReadKey();
         }
 
         public static void ConsultarLivro()

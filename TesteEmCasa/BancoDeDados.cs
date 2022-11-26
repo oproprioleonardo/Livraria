@@ -14,7 +14,7 @@ namespace TesteEmCasa
 
         public static void NovaConexao()
         {
-            credenciais = Environment.GetEnvironmentVariable("credenciais");
+            credenciais = "Coloque suas credenciais aqui";
             con = new SqlConnection(credenciais);
         }
 
@@ -34,18 +34,19 @@ namespace TesteEmCasa
             cmd = new(sql, con);
             try
             {
-                cmd.ExecuteNonQuery();
+                ExecutarSemConsulta();                
             }
             catch { }
             finally
             {
-                con.Close();
+                FecharConexao();
             }
 
         }
 
         public static void InserirLivro(Livro livro)
         {
+            // Comando para inserir na tabela do banco de dados
             sql = "INSERT INTO livros(codigo, nome, editora, autor, ano, genero, quantidade, preco) VALUES (" +
                 "@codigo," +
                 "@nome," +
@@ -57,6 +58,7 @@ namespace TesteEmCasa
                 "@preco)";
             con.Open();
             cmd = new(sql, con);
+            // Inserindo os dados do C# no comando para ser executado no banco de dados
             cmd.Parameters.Add(new SqlParameter("@codigo", SqlDbType.VarChar, 13)).Value = livro.Codigo;
             cmd.Parameters.Add(new SqlParameter("@nome", SqlDbType.VarChar, 50)).Value = livro.Nome;
             cmd.Parameters.Add(new SqlParameter("@editora", SqlDbType.VarChar, 30)).Value = livro.Editora;
@@ -65,21 +67,23 @@ namespace TesteEmCasa
             cmd.Parameters.Add(new SqlParameter("@genero", SqlDbType.VarChar, 25)).Value = livro.Genero;
             cmd.Parameters.Add(new SqlParameter("@quantidade", SqlDbType.Int)).Value = livro.Quantidade;
             cmd.Parameters.Add(new SqlParameter("@preco", SqlDbType.Money)).Value = livro.Preco;
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
-
-            con.Close();
+            ExecutarSemConsulta();
+            FecharConexao();
         }
 
         public static Livro PegarLivro(string codigo)
         {
             Livro livro = new();
+            // Buscando o dado para o código informado
             sql = "SELECT * FROM livros WHERE codigo = @codigo";
             con.Open();
             cmd = new(sql, con);
+
             cmd.Parameters.Add(new SqlParameter("@codigo", SqlDbType.VarChar, 13)).Value = codigo;
             cmd.Prepare();
+          
             SqlDataReader rdr = cmd.ExecuteReader();
+            // Caso consiga ler, insere os dados recebidos do banco de dados para o objeto Livro, C#
             if (rdr.Read())
             {
                 livro.Codigo = rdr.GetString(0);
@@ -91,7 +95,7 @@ namespace TesteEmCasa
                 livro.Quantidade = rdr.GetInt32(6);
                 livro.Preco = ((decimal)rdr.GetSqlMoney(7));
             }
-            con.Close();
+            FecharConexao();
             return livro;
         }
 
@@ -104,7 +108,7 @@ namespace TesteEmCasa
             cmd.Prepare();
             SqlDataReader rdr = cmd.ExecuteReader();
             bool result = rdr.Read();
-            con.Close();
+            FecharConexao();
             return result;
         }
 
@@ -130,7 +134,7 @@ namespace TesteEmCasa
                 livros.Add(livro);
             }
 
-            con.Close();
+            FecharConexao();
             return livros;
         }
 
@@ -139,8 +143,19 @@ namespace TesteEmCasa
             sql = "DELETE FROM livros";
             con.Open();
             cmd = new(sql, con);
+            ExecutarSemConsulta();
+            FecharConexao();
+        }
+
+        public static void ExecutarSemConsulta()
+        {
             cmd.Prepare();
             cmd.ExecuteNonQuery();
+            
+        }
+
+        public static void FecharConexao()
+        {
             con.Close();
         }
 
@@ -150,10 +165,8 @@ namespace TesteEmCasa
             con.Open();
             cmd = new(sql, con);
             cmd.Parameters.Add(new SqlParameter("@codigo", SqlDbType.VarChar, 13)).Value = codigo;
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
-
-            con.Close();
+            ExecutarSemConsulta();
+            FecharConexao();
         }
 
         public static void AtualizarLivro(Livro livro)
@@ -172,10 +185,8 @@ namespace TesteEmCasa
             cmd.Parameters.Add(new SqlParameter("@quantidade", SqlDbType.Int)).Value = livro.Quantidade;
             cmd.Parameters.Add(new SqlParameter("@preco", SqlDbType.Money)).Value = livro.Preco;
 
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
-
-            con.Close();
+            ExecutarSemConsulta();
+            FecharConexao();
         }
 
     }
